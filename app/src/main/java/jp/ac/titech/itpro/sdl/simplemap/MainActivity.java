@@ -2,7 +2,9 @@ package jp.ac.titech.itpro.sdl.simplemap;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -10,8 +12,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -31,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final static String TAG = "MainActivity";
 
     private TextView infoView;
-    private GoogleMap googleMap;
+    public GoogleMap googleMap;
     private GoogleApiClient googleApiClient;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
@@ -46,13 +51,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Manifest.permission.ACCESS_FINE_LOCATION
     };
     private final static int REQCODE_PERMISSIONS = 1234;
-
+    private Button button;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
-
+        button = findViewById(R.id.button);
         infoView = findViewById(R.id.info_view);
         MapFragment mapFragment =
                 (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
@@ -67,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000L);
-        locationRequest.setFastestInterval(5000L);
+        //locationRequest.setInterval(1000L); // TODO: Erase this and add button
+        //locationRequest.setFastestInterval(5000L);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         locationCallback = new LocationCallback() {
@@ -85,6 +90,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         };
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loc();
+            }
+        });
+    }
+
+    public void loc(){
+        startLocationUpdate(true);
     }
 
     @Override
